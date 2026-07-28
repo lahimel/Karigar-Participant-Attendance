@@ -103,6 +103,7 @@ table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
         <label for="attDate">Date</label>
         <input type="date" id="attDate">
       </div>
+      <button type="button" id="todayBtn">Today</button>
       <button type="button" id="loadRosterBtn">Load roster</button>
     </div>
 
@@ -180,6 +181,7 @@ const els = {
   dateRow: document.getElementById('dateRow'),
   attDate: document.getElementById('attDate'),
   loadRosterBtn: document.getElementById('loadRosterBtn'),
+  todayBtn: document.getElementById('todayBtn'),
   sessionSection: document.getElementById('sessionSection'),
   sessLab: document.getElementById('sessLab'),
   sessTrainer: document.getElementById('sessTrainer'),
@@ -304,6 +306,12 @@ els.batchSearchBtn.addEventListener('click', async ()=>{
   }
 });
 
+function todayLocalISO(){
+  const IST_OFFSET_MS = 330 * 60000; // UTC+5:30, fixed regardless of the device's own timezone setting
+  const ist = new Date(Date.now() + IST_OFFSET_MS);
+  return ist.toISOString().slice(0,10);
+}
+
 function selectBatch(batch){
   selectedBatch = batch;
   els.selectedBanner.textContent = `Selected: ${batch.course_label}, Batch ${batch.batch_number} (${batch.num_students || 0} students)`;
@@ -313,12 +321,12 @@ function selectBatch(batch){
   els.rosterSection.classList.remove('show');
   els.summarySection.classList.remove('show');
   if(!els.attDate.value){
-    const today = new Date();
-    els.attDate.value = today.toISOString().slice(0,10);
+    els.attDate.value = todayLocalISO();
   }
   loadSummary();
 }
 
+els.todayBtn.addEventListener('click', ()=>{ els.attDate.value = todayLocalISO(); });
 els.loadRosterBtn.addEventListener('click', loadRoster);
 
 async function loadRoster(){
@@ -404,6 +412,7 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
   els.statusMsg.style.color = 'var(--ink-soft)';
   els.statusMsg.textContent = 'Saving…';
   try{
+    const savedDateLabel = fmtDate(els.attDate.value);
     const result = await callBackend('save_attendance', {
       registration_id: selectedBatch.registration_id,
       date: els.attDate.value,
@@ -416,9 +425,10 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
         session_duration: els.sessDuration.value
       }
     });
-    els.statusMsg.style.color = 'var(--teal)';
-    els.statusMsg.textContent = `Saved attendance for ${result.saved} student(s) on ${fmtDate(els.attDate.value)}.`;
     loadSummary();
+    resetSessionForm();
+    els.statusMsg.style.color = 'var(--teal)';
+    els.statusMsg.textContent = `Saved attendance for ${result.saved} student(s) on ${savedDateLabel}. Ready for the next session.`;
   } catch(err){
     els.statusMsg.style.color = 'var(--rust)';
     els.statusMsg.textContent = 'Could not save: ' + err.message;
@@ -426,6 +436,23 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
     els.saveAttendanceBtn.disabled = false;
   }
 });
+
+// Clears date, session details, and the roster back to a blank state after
+// a successful save. Keeps the batch selected, most attendance is taken
+// batch by batch, date by date, so re-searching every time would be tedious.
+function resetSessionForm(){
+  els.attDate.value = '';
+  els.sessLab.value = '';
+  els.sessLab.dispatchEvent(new Event('change'));
+  els.sessTopic.value = '';
+  els.sessPractical.value = '';
+  els.sessDuration.value = '';
+  els.sessDurationErr.classList.remove('show');
+  els.sessDuration.classList.remove('input-invalid');
+  els.sessionSection.classList.remove('show');
+  els.rosterSection.classList.remove('show');
+  els.rosterBody.innerHTML = '';
+}
 
 // ---- Section 3: summary ----
 async function loadSummary(){
