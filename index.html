@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karigar: Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F6F1; --surface:#FFFFFF; --ink:#1F2A24; --ink-soft:#5B6B62;
+  --line:#DCE1D8; --brass:#A9782E; --brass-dark:#8A611F; --teal:#3D6B63;
+  --rust:#B23A2A; --rust-bg:#FBEAE6;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;padding-bottom:80px;}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px;}
+header.top{border-bottom:2px solid var(--ink);padding:28px 0 20px;margin-bottom:8px;}
+.brand{font-family:"Space Grotesk",system-ui,sans-serif;font-weight:700;font-size:26px;letter-spacing:-0.02em;}
+.brand small{display:block;font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-dark);margin-top:4px;}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:2px;margin:20px 0;position:relative;padding:26px 28px 28px 74px;}
+section.card::before{content:attr(data-num);position:absolute;left:0;top:0;bottom:0;width:52px;background:var(--ink);color:var(--bg);font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:20px;display:flex;align-items:flex-start;justify-content:center;padding-top:26px;}
+h2.section-title{font-family:"Space Grotesk",system-ui,sans-serif;font-size:19px;font-weight:700;margin:0 0 4px;letter-spacing:-0.01em;}
+p.section-sub{margin:0 0 18px;font-size:13px;color:var(--ink-soft);}
+.field-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px;align-items:flex-end;}
+.field{flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;}
+.field.narrow{max-width:200px;flex:0 0 auto;}
+label{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft);}
+input,select{font-family:system-ui,-apple-system,sans-serif;font-size:14.5px;padding:9px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);}
+input:focus,select:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass);}
+button{font-family:system-ui,sans-serif;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:3px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer;}
+button:hover{background:#F0F0EC;}
+button.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+button.primary:hover{background:#33463B;}
+button.brass{background:var(--brass);color:#fff;border-color:var(--brass-dark);}
+button.brass:hover{background:var(--brass-dark);}
+button:disabled{opacity:0.5;cursor:not-allowed;}
+.hint{font-size:12px;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;}
+.result-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.result-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:3px;padding:10px 14px;background:#FAFAF6;}
+.result-row .info{font-size:13.5px;}
+.result-row .info b{font-family:"Space Grotesk",sans-serif;}
+.result-row .info .meta{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);}
+.selected-banner{background:#F1EBDD;border:1px dashed var(--brass);color:var(--brass-dark);padding:10px 14px;border-radius:3px;font-size:13.5px;margin-bottom:14px;display:none;}
+.selected-banner.show{display:block;}
+table.roster{border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",monospace;font-size:13.5px;margin-top:10px;}
+table.roster th{background:var(--ink);color:var(--bg);text-align:left;padding:8px 10px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;}
+table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
+.toggle-group{display:flex;gap:6px;}
+.toggle-btn{padding:5px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;cursor:pointer;}
+.toggle-btn.present.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.toggle-btn.absent.active{background:var(--rust);color:#fff;border-color:var(--rust);}
+.toggle-btn.unmarked{color:var(--ink-soft);}
+.summary-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:7px 2px;font-size:13.5px;}
+.summary-row .pct{font-family:"IBM Plex Mono",monospace;font-weight:600;}
+.pct.low{color:var(--rust);}
+.pct.high{color:var(--teal);}
+#statusMsg{font-size:13px;font-family:"IBM Plex Mono",monospace;}
+.conditional{display:none;}
+.conditional.show{display:block;}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap"><div class="brand">Karigar<small>Attendance</small></div></div></header>
+
+<div class="wrap">
+
+  <section class="card" data-num="1">
+    <h2 class="section-title">Find &amp; Import a Batch</h2>
+    <p class="section-sub">Search your registration system by batch number or course name. Importing copies that batch's roster here; it won't touch the original data.</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="importSearch">Batch number or course name</label>
+        <input type="text" id="importSearch" placeholder="e.g. 23 or Baking">
+      </div>
+      <button type="button" id="importSearchBtn">Search</button>
+    </div>
+    <div class="result-list" id="importResults"></div>
+  </section>
+
+  <section class="card" data-num="2">
+    <h2 class="section-title">Mark Attendance</h2>
+    <p class="section-sub">Pick an already-imported batch and a date.</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="batchSearch">Find imported batch</label>
+        <input type="text" id="batchSearch" placeholder="e.g. 23 or Baking">
+      </div>
+      <button type="button" id="batchSearchBtn">Search</button>
+    </div>
+    <div class="result-list" id="batchResults"></div>
+
+    <div class="selected-banner" id="selectedBanner"></div>
+
+    <div class="field-row conditional" id="dateRow">
+      <div class="field narrow">
+        <label for="attDate">Date</label>
+        <input type="date" id="attDate">
+      </div>
+      <button type="button" id="loadRosterBtn">Load roster</button>
+    </div>
+
+    <div class="conditional" id="rosterSection">
+      <div class="field-row">
+        <button type="button" id="markAllPresentBtn">Mark all present</button>
+        <button type="button" id="markAllAbsentBtn">Mark all absent</button>
+      </div>
+      <table class="roster">
+        <thead><tr><th>Name</th><th>Mobile</th><th>Status</th></tr></thead>
+        <tbody id="rosterBody"></tbody>
+      </table>
+      <div class="field-row" style="margin-top:16px;">
+        <span id="statusMsg"></span>
+        <button type="button" class="primary" id="saveAttendanceBtn">Save attendance</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card conditional" data-num="3" id="summarySection">
+    <h2 class="section-title">Attendance Summary</h2>
+    <p class="section-sub" id="summarySub"></p>
+    <div id="summaryBody"></div>
+  </section>
+
+</div>
+
+<script>
+const CONFIG = {
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxzb0lm9nV_SUuoQmU9zt4V1rn_xTOY9UYCNThlFSPOEl6IboFEmoAXctkp15PlC8XD/exec",
+  SECRET_TOKEN: "BWVhWPnjqghB4HunkVRT"
+};
+
+const els = {
+  importSearch: document.getElementById('importSearch'),
+  importSearchBtn: document.getElementById('importSearchBtn'),
+  importResults: document.getElementById('importResults'),
+  batchSearch: document.getElementById('batchSearch'),
+  batchSearchBtn: document.getElementById('batchSearchBtn'),
+  batchResults: document.getElementById('batchResults'),
+  selectedBanner: document.getElementById('selectedBanner'),
+  dateRow: document.getElementById('dateRow'),
+  attDate: document.getElementById('attDate'),
+  loadRosterBtn: document.getElementById('loadRosterBtn'),
+  rosterSection: document.getElementById('rosterSection'),
+  rosterBody: document.getElementById('rosterBody'),
+  markAllPresentBtn: document.getElementById('markAllPresentBtn'),
+  markAllAbsentBtn: document.getElementById('markAllAbsentBtn'),
+  statusMsg: document.getElementById('statusMsg'),
+  saveAttendanceBtn: document.getElementById('saveAttendanceBtn'),
+  summarySection: document.getElementById('summarySection'),
+  summarySub: document.getElementById('summarySub'),
+  summaryBody: document.getElementById('summaryBody')
+};
+
+let selectedBatch = null; // {registration_id, course_label, batch_number}
+
+async function fetchWithTimeout(url, options, timeoutMs=20000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  try{ return await fetch(url, {...options, signal: controller.signal}); }
+  finally{ clearTimeout(timer); }
+}
+
+async function callBackend(action, extra){
+  if(CONFIG.APPS_SCRIPT_URL.includes('PASTE_YOUR')) {
+    throw new Error('Apps Script URL not configured yet (edit CONFIG in this file)');
+  }
+  const resp = await fetchWithTimeout(CONFIG.APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ token: CONFIG.SECRET_TOKEN, action, ...extra })
+  });
+  const result = await resp.json();
+  if(result.status !== 'success') throw new Error(result.message || 'Unknown error from server');
+  return result;
+}
+
+function fmtDate(v){
+  if(!v) return '';
+  const d = new Date(v);
+  return isNaN(d) ? String(v) : d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+}
+
+function renderResultRow(container, batch, actionLabel, onClick){
+  const row = document.createElement('div');
+  row.className = 'result-row';
+  row.innerHTML = `<div class="info"><b>${batch.course_label || 'Unknown course'}</b> &middot; Batch ${batch.batch_number}
+    <div class="meta">${batch.num_students || 0} students &middot; ${fmtDate(batch.enroll_date)} to ${fmtDate(batch.course_end_date)}</div></div>`;
+  const btn = document.createElement('button');
+  btn.textContent = actionLabel;
+  btn.className = 'brass';
+  btn.addEventListener('click', ()=>onClick(batch));
+  row.appendChild(btn);
+  container.appendChild(row);
+}
+
+// ---- Section 1: import ----
+els.importSearchBtn.addEventListener('click', async ()=>{
+  els.importResults.innerHTML = '';
+  try{
+    const result = await callBackend('search_source', { query: els.importSearch.value });
+    if(!result.batches.length){ els.importResults.innerHTML = '<div class="hint">No matching batches found in the registration system.</div>'; return; }
+    result.batches.forEach(b=>renderResultRow(els.importResults, b, 'Import', importBatch));
+  } catch(err){
+    els.importResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
+  }
+});
+
+async function importBatch(batch){
+  els.importResults.innerHTML = '<div class="hint">Importing…</div>';
+  try{
+    const result = await callBackend('import_batch', { registration_id: batch.registration_id });
+    els.importResults.innerHTML = `<div class="hint">Imported "${result.course_label}", Batch ${result.batch_number}: ${result.students_imported} students. You can now find it below under "Mark Attendance".</div>`;
+  } catch(err){
+    els.importResults.innerHTML = `<div class="hint">Import failed: ${err.message}</div>`;
+  }
+}
+
+// ---- Section 2: select imported batch + date ----
+els.batchSearchBtn.addEventListener('click', async ()=>{
+  els.batchResults.innerHTML = '';
+  try{
+    const result = await callBackend('list_batches', { query: els.batchSearch.value });
+    if(!result.batches.length){ els.batchResults.innerHTML = '<div class="hint">No imported batches match that search. Import one above first.</div>'; return; }
+    result.batches.forEach(b=>renderResultRow(els.batchResults, b, 'Select', selectBatch));
+  } catch(err){
+    els.batchResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
+  }
+});
+
+function selectBatch(batch){
+  selectedBatch = batch;
+  els.selectedBanner.textContent = `Selected: ${batch.course_label}, Batch ${batch.batch_number} (${batch.num_students || 0} students)`;
+  els.selectedBanner.classList.add('show');
+  els.dateRow.classList.add('show');
+  els.rosterSection.classList.remove('show');
+  els.summarySection.classList.remove('show');
+  if(!els.attDate.value){
+    const today = new Date();
+    els.attDate.value = today.toISOString().slice(0,10);
+  }
+  loadSummary();
+}
+
+els.loadRosterBtn.addEventListener('click', loadRoster);
+
+async function loadRoster(){
+  if(!selectedBatch || !els.attDate.value) return;
+  els.rosterBody.innerHTML = '<tr><td colspan="3">Loading…</td></tr>';
+  els.rosterSection.classList.add('show');
+  try{
+    const result = await callBackend('get_roster', { registration_id: selectedBatch.registration_id, date: els.attDate.value });
+    els.rosterBody.innerHTML = '';
+    if(!result.roster.length){
+      els.rosterBody.innerHTML = '<tr><td colspan="3">No students found for this batch (re-import it above if the roster changed).</td></tr>';
+      return;
+    }
+    result.roster.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.dataset.studentId = s.student_id;
+      tr.dataset.fullName = s.full_name;
+      tr.innerHTML = `<td>${s.full_name}</td><td>${s.mobile_number||''}</td><td>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn present ${s.status==='present'?'active':''}" data-status="present">Present</button>
+          <button type="button" class="toggle-btn absent ${s.status==='absent'?'active':''}" data-status="absent">Absent</button>
+        </div></td>`;
+      els.rosterBody.appendChild(tr);
+    });
+  } catch(err){
+    els.rosterBody.innerHTML = `<tr><td colspan="3">Could not load roster: ${err.message}</td></tr>`;
+  }
+}
+
+els.rosterBody.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.toggle-btn');
+  if(!btn) return;
+  const group = btn.parentElement;
+  [...group.children].forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+});
+
+els.markAllPresentBtn.addEventListener('click', ()=>setAll('present'));
+els.markAllAbsentBtn.addEventListener('click', ()=>setAll('absent'));
+function setAll(status){
+  [...els.rosterBody.children].forEach(tr=>{
+    const group = tr.querySelector('.toggle-group');
+    if(!group) return;
+    [...group.children].forEach(b=>b.classList.toggle('active', b.dataset.status===status));
+  });
+}
+
+els.saveAttendanceBtn.addEventListener('click', async ()=>{
+  if(!selectedBatch || !els.attDate.value) return;
+  const records = [...els.rosterBody.children].map(tr=>{
+    const active = tr.querySelector('.toggle-btn.active');
+    return { student_id: tr.dataset.studentId, full_name: tr.dataset.fullName, status: active ? active.dataset.status : '' };
+  }).filter(r=>r.status);
+
+  if(!records.length){
+    els.statusMsg.style.color = 'var(--rust)';
+    els.statusMsg.textContent = 'Mark at least one student before saving.';
+    return;
+  }
+
+  els.saveAttendanceBtn.disabled = true;
+  els.statusMsg.style.color = 'var(--ink-soft)';
+  els.statusMsg.textContent = 'Saving…';
+  try{
+    const result = await callBackend('save_attendance', {
+      registration_id: selectedBatch.registration_id,
+      date: els.attDate.value,
+      records
+    });
+    els.statusMsg.style.color = 'var(--teal)';
+    els.statusMsg.textContent = `Saved attendance for ${result.saved} student(s) on ${fmtDate(els.attDate.value)}.`;
+    loadSummary();
+  } catch(err){
+    els.statusMsg.style.color = 'var(--rust)';
+    els.statusMsg.textContent = 'Could not save: ' + err.message;
+  } finally {
+    els.saveAttendanceBtn.disabled = false;
+  }
+});
+
+// ---- Section 3: summary ----
+async function loadSummary(){
+  if(!selectedBatch) return;
+  els.summarySection.classList.add('show');
+  els.summarySub.textContent = `${selectedBatch.course_label}, Batch ${selectedBatch.batch_number}`;
+  els.summaryBody.innerHTML = '<div class="hint">Loading…</div>';
+  try{
+    const result = await callBackend('get_attendance_summary', { registration_id: selectedBatch.registration_id });
+    if(!result.summary.dates.length){
+      els.summaryBody.innerHTML = '<div class="hint">No attendance marked yet for this batch.</div>';
+      return;
+    }
+    const totalSessions = result.summary.dates.length;
+    els.summaryBody.innerHTML = `<div class="hint">${totalSessions} session(s) recorded so far.</div>`;
+    result.summary.students.forEach(s=>{
+      const pct = s.total_sessions ? Math.round((s.present_count / s.total_sessions) * 100) : 0;
+      const row = document.createElement('div');
+      row.className = 'summary-row';
+      row.innerHTML = `<span>${s.full_name}</span><span class="pct ${pct<75?'low':'high'}">${s.present_count}/${s.total_sessions} (${pct}%)</span>`;
+      els.summaryBody.appendChild(row);
+    });
+  } catch(err){
+    els.summaryBody.innerHTML = `<div class="hint">Could not load summary: ${err.message}</div>`;
+  }
+}
+</script>
+</body>
+</html>
