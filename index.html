@@ -37,6 +37,9 @@ button.brass{background:var(--brass);color:#fff;border-color:var(--brass-dark);}
 button.brass:hover{background:var(--brass-dark);}
 button:disabled{opacity:0.5;cursor:not-allowed;}
 .hint{font-size:12px;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;}
+.paid-error{font-size:12px;color:var(--rust);margin-top:2px;display:none;}
+.paid-error.show{display:block;}
+input.input-invalid{border-color:var(--rust);background:var(--rust-bg);}
 .result-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
 .result-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:3px;padding:10px 14px;background:#FAFAF6;}
 .result-row .info{font-size:13.5px;}
@@ -51,6 +54,7 @@ table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
 .toggle-btn{padding:5px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;cursor:pointer;}
 .toggle-btn.present.active{background:var(--teal);color:#fff;border-color:var(--teal);}
 .toggle-btn.absent.active{background:var(--rust);color:#fff;border-color:var(--rust);}
+.toggle-btn.na.active{background:var(--ink-soft);color:#fff;border-color:var(--ink-soft);}
 .toggle-btn.unmarked{color:var(--ink-soft);}
 .summary-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:7px 2px;font-size:13.5px;}
 .summary-row .pct{font-family:"IBM Plex Mono",monospace;font-weight:600;}
@@ -102,10 +106,40 @@ table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
       <button type="button" id="loadRosterBtn">Load roster</button>
     </div>
 
+    <div class="conditional" id="sessionSection">
+      <h2 class="section-title" style="font-size:15px;margin-top:8px;">Session Details</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="sessLab">Select Lab</label>
+          <select id="sessLab"><option value="">Select…</option></select>
+        </div>
+        <div class="field">
+          <label for="sessTrainer">Trainer Name</label>
+          <select id="sessTrainer" disabled><option value="">Select lab first</option></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="sessTopic">Topic Name</label>
+          <input type="text" id="sessTopic">
+        </div>
+        <div class="field">
+          <label for="sessPractical">Practical Name</label>
+          <input type="text" id="sessPractical">
+        </div>
+        <div class="field narrow">
+          <label for="sessDuration">Session Duration (minutes)</label>
+          <input type="number" id="sessDuration" min="30" step="1">
+          <div class="paid-error" id="sessDurationErr">Must be at least 30 minutes.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="conditional" id="rosterSection">
       <div class="field-row">
         <button type="button" id="markAllPresentBtn">Mark all present</button>
         <button type="button" id="markAllAbsentBtn">Mark all absent</button>
+        <button type="button" id="markAllNaBtn">Mark all N/A</button>
       </div>
       <table class="roster">
         <thead><tr><th>Name</th><th>Mobile</th><th>Status</th></tr></thead>
@@ -132,6 +166,9 @@ const CONFIG = {
   SECRET_TOKEN: "BWVhWPnjqghB4HunkVRT"
 };
 
+const LABS = ["Engineering","Electrical","Food_Processing","Mechatronics","Agriculture"];
+const STAFF = [{"name": "Ganesh Salunkhe", "label": "Ganesh Salunkhe", "lab_filter": "Engineering", "designation": "Officer"}, {"name": "Swati Wani", "label": "Swati Wani", "lab_filter": "Engineering", "designation": "Master Trainer"}, {"name": "Rajesh S. Chavhan", "label": "Rajesh S. Chavhan", "lab_filter": "Electrical", "designation": "Sr. Training Officer"}, {"name": "Manjokti Dongare", "label": "Manjokti Dongare", "lab_filter": "Electrical", "designation": "Instructor"}, {"name": "Akshay Kharpude", "label": "Akshay Kharpude", "lab_filter": "Electrical", "designation": "Trainee Instructor"}, {"name": "Varun Devkule", "label": "Varun Devkule", "lab_filter": "Electrical", "designation": "Intern"}, {"name": "Kunal Garge", "label": "Kunal Garge", "lab_filter": "Food_Processing", "designation": "Senior Officer"}, {"name": "Sagar Deshpande", "label": "Sagar Deshpande", "lab_filter": "Food_Processing", "designation": "Officer"}, {"name": "Suvarna Nagare", "label": "Suvarna Nagare", "lab_filter": "Food_Processing", "designation": "Master Trainer"}, {"name": "Rutuja Rangade", "label": "Rutuja Rangade", "lab_filter": "Food_Processing", "designation": "Assistant Instructor"}, {"name": "Arundhati Jadhav", "label": "Arundhati Jadhav", "lab_filter": "Mechatronics", "designation": "Dy Manager"}, {"name": "Uday Kulkarni", "label": "Uday Kulkarni", "lab_filter": "Mechatronics", "designation": "Master Trainer"}, {"name": "Bhagyshri Kumbhar", "label": "Bhagyshri Kumbhar", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Siddhi Kadam", "label": "Siddhi Kadam", "lab_filter": "Agriculture", "designation": "Sr. Trainer"}, {"name": "Rudali Masaye", "label": "Rudali Masaye", "lab_filter": "Agriculture", "designation": "Sr. Instructor"}, {"name": "Paresh Botle", "label": "Paresh Botle", "lab_filter": "Agriculture", "designation": "Lab In-Charge"}, {"name": "Siddhi Lingayat", "label": "Siddhi Lingayat", "lab_filter": "Healthcare", "designation": "Trainer"}, {"name": "Shiv Gaygol", "label": "Shiv Gaygol", "lab_filter": "Engineering", "designation": "Lab In-Charge"}, {"name": "Sagar Vaishnav", "label": "Sagar Vaishnav", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Ramdas Lomate", "label": "Ramdas Lomate", "lab_filter": "Mechatronics", "designation": "Trainer"}];
+
 const els = {
   importSearch: document.getElementById('importSearch'),
   importSearchBtn: document.getElementById('importSearchBtn'),
@@ -143,16 +180,53 @@ const els = {
   dateRow: document.getElementById('dateRow'),
   attDate: document.getElementById('attDate'),
   loadRosterBtn: document.getElementById('loadRosterBtn'),
+  sessionSection: document.getElementById('sessionSection'),
+  sessLab: document.getElementById('sessLab'),
+  sessTrainer: document.getElementById('sessTrainer'),
+  sessTopic: document.getElementById('sessTopic'),
+  sessPractical: document.getElementById('sessPractical'),
+  sessDuration: document.getElementById('sessDuration'),
+  sessDurationErr: document.getElementById('sessDurationErr'),
   rosterSection: document.getElementById('rosterSection'),
   rosterBody: document.getElementById('rosterBody'),
   markAllPresentBtn: document.getElementById('markAllPresentBtn'),
   markAllAbsentBtn: document.getElementById('markAllAbsentBtn'),
+  markAllNaBtn: document.getElementById('markAllNaBtn'),
   statusMsg: document.getElementById('statusMsg'),
   saveAttendanceBtn: document.getElementById('saveAttendanceBtn'),
   summarySection: document.getElementById('summarySection'),
   summarySub: document.getElementById('summarySub'),
   summaryBody: document.getElementById('summaryBody')
 };
+
+LABS.forEach(l=>{
+  const opt = document.createElement('option');
+  opt.value = l; opt.textContent = l.replace('_',' ');
+  els.sessLab.appendChild(opt);
+});
+els.sessLab.addEventListener('change', ()=>{
+  const lab = els.sessLab.value;
+  els.sessTrainer.innerHTML = '';
+  if(!lab){
+    els.sessTrainer.disabled = true;
+    els.sessTrainer.innerHTML = '<option value="">Select lab first</option>';
+    return;
+  }
+  els.sessTrainer.disabled = false;
+  const ph = document.createElement('option');
+  ph.value = ''; ph.textContent = 'Select…';
+  els.sessTrainer.appendChild(ph);
+  STAFF.filter(s=>s.lab_filter===lab).forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.name; opt.textContent = `${s.label} (${s.designation})`;
+    els.sessTrainer.appendChild(opt);
+  });
+});
+els.sessDuration.addEventListener('input', ()=>{
+  const bad = els.sessDuration.value !== '' && parseInt(els.sessDuration.value) < 30;
+  els.sessDurationErr.classList.toggle('show', bad);
+  els.sessDuration.classList.toggle('input-invalid', bad);
+});
 
 let selectedBatch = null; // {registration_id, course_label, batch_number}
 
@@ -235,6 +309,7 @@ function selectBatch(batch){
   els.selectedBanner.textContent = `Selected: ${batch.course_label}, Batch ${batch.batch_number} (${batch.num_students || 0} students)`;
   els.selectedBanner.classList.add('show');
   els.dateRow.classList.add('show');
+  els.sessionSection.classList.remove('show');
   els.rosterSection.classList.remove('show');
   els.summarySection.classList.remove('show');
   if(!els.attDate.value){
@@ -249,9 +324,19 @@ els.loadRosterBtn.addEventListener('click', loadRoster);
 async function loadRoster(){
   if(!selectedBatch || !els.attDate.value) return;
   els.rosterBody.innerHTML = '<tr><td colspan="3">Loading…</td></tr>';
+  els.sessionSection.classList.add('show');
   els.rosterSection.classList.add('show');
   try{
     const result = await callBackend('get_roster', { registration_id: selectedBatch.registration_id, date: els.attDate.value });
+
+    const s = result.session;
+    els.sessLab.value = s ? s.lab : '';
+    els.sessLab.dispatchEvent(new Event('change'));
+    els.sessTrainer.value = s ? s.trainer_name : '';
+    els.sessTopic.value = s ? s.session_name : '';
+    els.sessPractical.value = s ? s.practical_name : '';
+    els.sessDuration.value = s ? s.session_duration : '';
+
     els.rosterBody.innerHTML = '';
     if(!result.roster.length){
       els.rosterBody.innerHTML = '<tr><td colspan="3">No students found for this batch (re-import it above if the roster changed).</td></tr>';
@@ -265,6 +350,7 @@ async function loadRoster(){
         <div class="toggle-group">
           <button type="button" class="toggle-btn present ${s.status==='present'?'active':''}" data-status="present">Present</button>
           <button type="button" class="toggle-btn absent ${s.status==='absent'?'active':''}" data-status="absent">Absent</button>
+          <button type="button" class="toggle-btn na ${s.status==='not_applicable'?'active':''}" data-status="not_applicable">N/A</button>
         </div></td>`;
       els.rosterBody.appendChild(tr);
     });
@@ -283,6 +369,7 @@ els.rosterBody.addEventListener('click', (e)=>{
 
 els.markAllPresentBtn.addEventListener('click', ()=>setAll('present'));
 els.markAllAbsentBtn.addEventListener('click', ()=>setAll('absent'));
+els.markAllNaBtn.addEventListener('click', ()=>setAll('not_applicable'));
 function setAll(status){
   [...els.rosterBody.children].forEach(tr=>{
     const group = tr.querySelector('.toggle-group');
@@ -293,14 +380,23 @@ function setAll(status){
 
 els.saveAttendanceBtn.addEventListener('click', async ()=>{
   if(!selectedBatch || !els.attDate.value) return;
+
+  const problems = [];
+  if(!els.sessLab.value) problems.push('select lab');
+  if(!els.sessTrainer.value) problems.push('trainer name');
+  if(!els.sessTopic.value.trim()) problems.push('topic name');
+  if(!els.sessPractical.value.trim()) problems.push('practical name');
+  if(!els.sessDuration.value || parseInt(els.sessDuration.value) < 30) problems.push('session duration (30 minutes minimum)');
+
   const records = [...els.rosterBody.children].map(tr=>{
     const active = tr.querySelector('.toggle-btn.active');
     return { student_id: tr.dataset.studentId, full_name: tr.dataset.fullName, status: active ? active.dataset.status : '' };
   }).filter(r=>r.status);
+  if(!records.length) problems.push('at least one student marked');
 
-  if(!records.length){
+  if(problems.length){
     els.statusMsg.style.color = 'var(--rust)';
-    els.statusMsg.textContent = 'Mark at least one student before saving.';
+    els.statusMsg.textContent = 'Before saving: ' + problems.join(', ');
     return;
   }
 
@@ -311,7 +407,14 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
     const result = await callBackend('save_attendance', {
       registration_id: selectedBatch.registration_id,
       date: els.attDate.value,
-      records
+      records,
+      session: {
+        lab: els.sessLab.value,
+        trainer_name: els.sessTrainer.value,
+        session_name: els.sessTopic.value.trim(),
+        practical_name: els.sessPractical.value.trim(),
+        session_duration: els.sessDuration.value
+      }
     });
     els.statusMsg.style.color = 'var(--teal)';
     els.statusMsg.textContent = `Saved attendance for ${result.saved} student(s) on ${fmtDate(els.attDate.value)}.`;
