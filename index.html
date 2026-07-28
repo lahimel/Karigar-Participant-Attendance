@@ -273,21 +273,27 @@ function renderResultRow(container, batch, actionLabel, onClick, statusNote){
 }
 
 // ---- Section 1: import ----
+let importSearchSeq = 0;
 els.importSearchBtn.addEventListener('click', async ()=>{
-  els.importResults.innerHTML = '';
+  const seq = ++importSearchSeq;
+  els.importResults.innerHTML = '<div class="hint">Searching…</div>';
   try{
     const result = await callBackend('search_source', { query: els.importSearch.value });
+    if(seq !== importSearchSeq) return; // a newer search started before this one finished; ignore this stale response
+    els.importResults.innerHTML = '';
     if(!result.batches.length){ els.importResults.innerHTML = '<div class="hint">No matching batches found in the registration system.</div>'; return; }
     result.batches.forEach(b=>{
       const note = b.already_imported ? `Already imported ${fmtDate(b.imported_at)}` : '';
       renderResultRow(els.importResults, b, b.already_imported ? 'Re-import' : 'Import', importBatch, note);
     });
   } catch(err){
+    if(seq !== importSearchSeq) return;
     els.importResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
   }
 });
 
 async function importBatch(batch){
+  importSearchSeq++; // any in-flight search response is now stale too, importing changes what "already imported" means
   els.importResults.innerHTML = '<div class="hint">Importing…</div>';
   try{
     const result = await callBackend('import_batch', { registration_id: batch.registration_id });
@@ -298,13 +304,18 @@ async function importBatch(batch){
 }
 
 // ---- Section 2: select imported batch + date ----
+let batchSearchSeq = 0;
 els.batchSearchBtn.addEventListener('click', async ()=>{
-  els.batchResults.innerHTML = '';
+  const seq = ++batchSearchSeq;
+  els.batchResults.innerHTML = '<div class="hint">Searching…</div>';
   try{
     const result = await callBackend('list_batches', { query: els.batchSearch.value });
+    if(seq !== batchSearchSeq) return;
+    els.batchResults.innerHTML = '';
     if(!result.batches.length){ els.batchResults.innerHTML = '<div class="hint">No imported batches match that search. Import one above first.</div>'; return; }
     result.batches.forEach(b=>renderResultRow(els.batchResults, b, 'Select', selectBatch));
   } catch(err){
+    if(seq !== batchSearchSeq) return;
     els.batchResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
   }
 });
