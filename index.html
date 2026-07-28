@@ -259,11 +259,11 @@ function fmtDate(v){
   return isNaN(d) ? String(v) : d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
 }
 
-function renderResultRow(container, batch, actionLabel, onClick){
+function renderResultRow(container, batch, actionLabel, onClick, statusNote){
   const row = document.createElement('div');
   row.className = 'result-row';
   row.innerHTML = `<div class="info"><b>${batch.course_label || 'Unknown course'}</b> &middot; Batch ${batch.batch_number}
-    <div class="meta">${batch.num_students || 0} students &middot; ${fmtDate(batch.enroll_date)} to ${fmtDate(batch.course_end_date)}</div></div>`;
+    <div class="meta">${batch.num_students || 0} students &middot; ${fmtDate(batch.enroll_date)} to ${fmtDate(batch.course_end_date)}${statusNote ? ' &middot; ' + statusNote : ''}</div></div>`;
   const btn = document.createElement('button');
   btn.textContent = actionLabel;
   btn.className = 'brass';
@@ -278,7 +278,10 @@ els.importSearchBtn.addEventListener('click', async ()=>{
   try{
     const result = await callBackend('search_source', { query: els.importSearch.value });
     if(!result.batches.length){ els.importResults.innerHTML = '<div class="hint">No matching batches found in the registration system.</div>'; return; }
-    result.batches.forEach(b=>renderResultRow(els.importResults, b, 'Import', importBatch));
+    result.batches.forEach(b=>{
+      const note = b.already_imported ? `Already imported ${fmtDate(b.imported_at)}` : '';
+      renderResultRow(els.importResults, b, b.already_imported ? 'Re-import' : 'Import', importBatch, note);
+    });
   } catch(err){
     els.importResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
   }
