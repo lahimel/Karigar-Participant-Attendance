@@ -226,8 +226,8 @@ const CONFIG = {
   SECRET_TOKEN: "BWVhWPnjqghB4HunkVRT"
 };
 
-const LABS = ["Engineering","Electrical","Food_Processing","Mechatronics","Agriculture"];
-const STAFF = [{"name": "Ganesh Salunkhe", "label": "Ganesh Salunkhe", "lab_filter": "Engineering", "designation": "Officer"}, {"name": "Swati Wani", "label": "Swati Wani", "lab_filter": "Engineering", "designation": "Master Trainer"}, {"name": "Rajesh S. Chavhan", "label": "Rajesh S. Chavhan", "lab_filter": "Electrical", "designation": "Sr. Training Officer"}, {"name": "Manjokti Dongare", "label": "Manjokti Dongare", "lab_filter": "Electrical", "designation": "Instructor"}, {"name": "Akshay Kharpude", "label": "Akshay Kharpude", "lab_filter": "Electrical", "designation": "Trainee Instructor"}, {"name": "Varun Devkule", "label": "Varun Devkule", "lab_filter": "Electrical", "designation": "Intern"}, {"name": "Kunal Garge", "label": "Kunal Garge", "lab_filter": "Food_Processing", "designation": "Senior Officer"}, {"name": "Sagar Deshpande", "label": "Sagar Deshpande", "lab_filter": "Food_Processing", "designation": "Officer"}, {"name": "Suvarna Nagare", "label": "Suvarna Nagare", "lab_filter": "Food_Processing", "designation": "Master Trainer"}, {"name": "Rutuja Rangade", "label": "Rutuja Rangade", "lab_filter": "Food_Processing", "designation": "Assistant Instructor"}, {"name": "Arundhati Jadhav", "label": "Arundhati Jadhav", "lab_filter": "Mechatronics", "designation": "Dy Manager"}, {"name": "Uday Kulkarni", "label": "Uday Kulkarni", "lab_filter": "Mechatronics", "designation": "Master Trainer"}, {"name": "Bhagyshri Kumbhar", "label": "Bhagyshri Kumbhar", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Siddhi Kadam", "label": "Siddhi Kadam", "lab_filter": "Agriculture", "designation": "Sr. Trainer"}, {"name": "Rudali Masaye", "label": "Rudali Masaye", "lab_filter": "Agriculture", "designation": "Sr. Instructor"}, {"name": "Paresh Botle", "label": "Paresh Botle", "lab_filter": "Agriculture", "designation": "Lab In-Charge"}, {"name": "Siddhi Lingayat", "label": "Siddhi Lingayat", "lab_filter": "Healthcare", "designation": "Trainer"}, {"name": "Shiv Gaygol", "label": "Shiv Gaygol", "lab_filter": "Engineering", "designation": "Lab In-Charge"}, {"name": "Sagar Vaishnav", "label": "Sagar Vaishnav", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Ramdas Lomate", "label": "Ramdas Lomate", "lab_filter": "Mechatronics", "designation": "Trainer"}];
+const LABS = ["Engineering", "Electrical", "Food_Processing", "Mechatronics", "Healthcare", "GNAT", "Computer"];
+const STAFF = [{"name": "Ganesh Salunkhe", "label": "Ganesh Salunkhe", "lab_filter": "Engineering", "designation": "Officer"}, {"name": "Swati Wani", "label": "Swati Wani", "lab_filter": "Engineering", "designation": "Master Trainer"}, {"name": "Rajesh S. Chavhan", "label": "Rajesh S. Chavhan", "lab_filter": "Electrical", "designation": "Sr. Training Officer"}, {"name": "Varun Devkule", "label": "Varun Devkule", "lab_filter": "Electrical", "designation": "Intern"}, {"name": "Kunal Garge", "label": "Kunal Garge", "lab_filter": "Food_Processing", "designation": "Senior Officer"}, {"name": "Sagar Deshpande", "label": "Sagar Deshpande", "lab_filter": "Food_Processing", "designation": "Officer"}, {"name": "Suvarna Nagare", "label": "Suvarna Nagare", "lab_filter": "Food_Processing", "designation": "Master Trainer"}, {"name": "Rutuja Rangade", "label": "Rutuja Rangade", "lab_filter": "Food_Processing", "designation": "Assistant Instructor"}, {"name": "Siddhi Lingayat", "label": "Siddhi Lingayat", "lab_filter": "Healthcare", "designation": "Trainer"}, {"name": "Shiv Gaygol", "label": "Shiv Gaygol", "lab_filter": "Engineering", "designation": "Lab In-Charge"}, {"name": "Sagar Vaishnav", "label": "Sagar Vaishnav", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Ramdas Lomate", "label": "Ramdas Lomate", "lab_filter": "Mechatronics", "designation": "Sr. Trainer"}, {"name": "Kishor Rathod", "label": "Kishor Rathod", "lab_filter": "GNAT", "designation": "Sr. Instructor"}, {"name": "Akanksha Khose", "label": "Akanksha Khose", "lab_filter": "Computer", "designation": "Sr. Instructor"}, {"name": "Sachin Chavan", "label": "Sachin Chavan", "lab_filter": "Engineering", "designation": "Instructor"}, {"name": "Alka Gajbhiye", "label": "Alka Gajbhiye", "lab_filter": "Electrical", "designation": "Trainer"}];
 
 const $ = id => document.getElementById(id);
 const els = {
@@ -292,7 +292,7 @@ const STATUS_TEXT = {ongoing:'Running', upcoming:'Upcoming', completed:'Finished
 const STATUS_ORDER = {ongoing:0, upcoming:1, unknown:2, completed:3};
 
 // ---------- session form ----------
-LABS.forEach(l=>{ els.sessLab.appendChild(el('option', {value:l, text:l.replace('_',' ')})); });
+LABS.forEach(l=>{ els.sessLab.appendChild(el('option', {value:l, text:l.replace(/_/g,' ')})); });
 els.sessLab.addEventListener('change', ()=>{
   const lab = els.sessLab.value;
   clear(els.sessTrainer);
@@ -524,6 +524,15 @@ function applySessionDefaults(){
 function rememberSession(){
   MEM.set('session_defaults', { lab: els.sessLab.value, trainer_name: els.sessTrainer.value, session_duration: els.sessDuration.value });
 }
+function clearLegacyOptions(){
+  [els.sessLab, els.sessTrainer].forEach(sel=>{ [...sel.options].forEach(o=>{ if(o.dataset.legacy) o.remove(); }); });
+}
+function ensureOption(select, value, label){
+  if(value && ![...select.options].some(o=>o.value === value)){
+    const o = el('option', {value, text:label, dataset:{legacy:'1'}});
+    select.appendChild(o);
+  }
+}
 let rosterSeq = 0;
 async function loadRoster(){
   if(!selectedBatch || !els.attDate.value) return;
@@ -536,8 +545,11 @@ async function loadRoster(){
     const result = await callBackend('get_roster', { registration_id: selectedBatch.registration_id, date: els.attDate.value });
     if(seq !== rosterSeq) return; // date or batch changed while loading
     const s = result.session;
+    clearLegacyOptions();
+    if(s) ensureOption(els.sessLab, s.lab, String(s.lab).replace(/_/g,' ') + ' (no longer listed)');
     els.sessLab.value = s ? s.lab : '';
     els.sessLab.dispatchEvent(new Event('change'));
+    if(s) ensureOption(els.sessTrainer, s.trainer_name, s.trainer_name + ' (no longer listed)');
     els.sessTrainer.value = s ? s.trainer_name : '';
     els.sessTopic.value = s ? s.session_name : '';
     els.sessPractical.value = s ? s.practical_name : '';
