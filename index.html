@@ -64,6 +64,9 @@ details.import-box summary{cursor:pointer;font-size:13.5px;font-weight:600;color
 details.import-box[open] summary{margin-bottom:12px;}
 .selected-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--brass-bg);border:1px dashed var(--brass);color:var(--brass-dark);padding:10px 14px;border-radius:3px;font-size:14px;margin-bottom:14px;}
 .selected-banner b{font-family:"Space Grotesk",sans-serif;}
+.stale-notice{display:none;align-items:center;justify-content:space-between;gap:12px;background:var(--rust-bg);border:1px solid var(--rust);color:var(--rust);padding:10px 14px;border-radius:3px;font-size:13.5px;margin-bottom:14px;}
+.stale-notice.show{display:flex;}
+.stale-notice button{flex:0 0 auto;}
 
 .check{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:500;color:var(--ink);margin:2px 0 8px;cursor:pointer;}
 .check input{height:18px;width:18px;margin-top:1px;padding:0;flex:0 0 auto;}
@@ -101,7 +104,8 @@ table.summary .sid{display:block;font-family:"IBM Plex Mono",monospace;font-size
   .field{min-width:150px;}
   .result-row{flex-direction:column;align-items:stretch;}
   .result-row button{width:100%;}
-  .selected-banner{flex-direction:column;align-items:flex-start;}
+  .selected-banner,.stale-notice.show{flex-direction:column;align-items:flex-start;}
+  .stale-notice button{width:100%;}
   table.roster thead{display:none;}
   table.roster,table.roster tbody,table.roster tr,table.roster td{display:block;width:100%;}
   table.roster tr{border-bottom:1px solid var(--line);padding:10px 0;}
@@ -148,6 +152,7 @@ table.summary .sid{display:block;font-family:"IBM Plex Mono",monospace;font-size
   <section class="card conditional" data-num="2" id="attendanceSection">
     <h2 class="section-title">Take attendance</h2>
     <div class="selected-banner" id="selectedBanner"></div>
+    <div class="stale-notice" id="staleNotice" role="status"></div>
 
     <div class="field-row">
       <div class="field narrow">
@@ -228,7 +233,7 @@ const $ = id => document.getElementById(id);
 const els = {
   importBox:$('importBox'), importSearch:$('importSearch'), importSearchBtn:$('importSearchBtn'), importResults:$('importResults'),
   batchSearch:$('batchSearch'), refreshBatchesBtn:$('refreshBatchesBtn'), batchResults:$('batchResults'),
-  attendanceSection:$('attendanceSection'), selectedBanner:$('selectedBanner'), attDate:$('attDate'), todayBtn:$('todayBtn'),
+  attendanceSection:$('attendanceSection'), selectedBanner:$('selectedBanner'), staleNotice:$('staleNotice'), attDate:$('attDate'), todayBtn:$('todayBtn'),
   sessionSection:$('sessionSection'), sessLab:$('sessLab'), sessTrainer:$('sessTrainer'), sessTopic:$('sessTopic'),
   sessPractical:$('sessPractical'), sessDuration:$('sessDuration'), sessDurationErr:$('sessDurationErr'),
   rosterSection:$('rosterSection'), rosterBody:$('rosterBody'), rosterCounts:$('rosterCounts'), defaultPresent:$('defaultPresent'),
@@ -309,6 +314,7 @@ els.sessDuration.addEventListener('input', ()=>{
 });
 
 let selectedBatch = null; // {registration_id, course_label, batch_number, num_students}
+let staleCheckedFor = '';
 
 // ---------- backend ----------
 async function fetchWithTimeout(url, options, timeoutMs=20000){
@@ -336,7 +342,8 @@ async function callBackend(action, extra){
 }
 
 // ---------- 1: choose a batch ----------
-let myBatches = [];
+let myBatches = [];   // the most recent imported batches (the script returns at most 20)
+let currentList = []; // what is on screen: those, or the server's search results
 let showAllBatches = false;
 const VISIBLE_AT_FIRST = 6;
 
@@ -370,7 +377,7 @@ function sortedBatches(list){
 function renderBatches(){
   const q = els.batchSearch.value.trim().toLowerCase();
   const last = MEM.get('last_batch');
-  let list = sortedBatches(myBatches);
+  let list = sortedBatches(currentList);
   if(q) list = list.filter(b=>`${b.batch_number} ${b.course_label || ''}`.toLowerCase().includes(q));
   clear(els.batchResults);
   if(!myBatches.length){
@@ -386,6 +393,7 @@ function renderBatches(){
     more.addEventListener('click', ()=>{ showAllBatches = true; renderBatches(); });
     els.batchResults.appendChild(more);
   }
+  if(!q && currentList.length >= 20) els.batchResults.appendChild(el('div', {class:'hint', text:'Showing the 20 most recent batches. Type in the search box to find an older one.'}));
 }
 let batchesSeq = 0;
 async function loadMyBatches(){
@@ -395,14 +403,33 @@ async function loadMyBatches(){
     const result = await callBackend('list_batches', { query: '' });
     if(seq !== batchesSeq) return;
     myBatches = result.batches || [];
+    currentList = myBatches;
     renderBatches();
   } catch(err){
     if(seq !== batchesSeq) return;
-    myBatches = [];
+    myBatches = []; currentList = [];
     showHint(els.batchResults, 'Could not load your batches: ' + errText(err), true);
   }
 }
-els.batchSearch.addEventListener('input', renderBatches);
+// Typing filters what is shown straight away, then asks the server so batches older than the
+// 20 most recent can be found too.
+let batchSearchTimer = null, batchSearchSeq = 0;
+async function runBatchSearch(){
+  const q = els.batchSearch.value.trim();
+  const seq = ++batchSearchSeq;
+  if(!q){ currentList = myBatches; renderBatches(); return; }
+  try{
+    const result = await callBackend('list_batches', { query: q });
+    if(seq !== batchSearchSeq) return;
+    currentList = result.batches || [];
+    renderBatches();
+  } catch(err){ /* keep the instant local filter */ }
+}
+els.batchSearch.addEventListener('input', ()=>{
+  renderBatches();
+  clearTimeout(batchSearchTimer);
+  batchSearchTimer = setTimeout(runBatchSearch, 250);
+});
 els.refreshBatchesBtn.addEventListener('click', loadMyBatches);
 
 // ---------- import (only needed for a batch that is not listed yet) ----------
@@ -454,6 +481,7 @@ function selectBatch(batch){
   els.selectedBanner.appendChild(el('span', null, [el('b', {text:batch.course_label || 'Batch'}), ` \u00B7 Batch ${batch.batch_number} \u00B7 ${batch.num_students || 0} students`]));
   els.selectedBanner.appendChild(change);
   els.attendanceSection.classList.add('show');
+  hideStale(); staleCheckedFor = '';
   els.statusMsg.textContent = '';
   if(!els.attDate.value) els.attDate.value = todayLocalISO();
   loadRoster();
@@ -521,7 +549,9 @@ async function loadRoster(){
       els.rosterBody.appendChild(el('tr', null, [el('td', {colspan:'2', text:'No students found for this batch (re-import it if the roster changed).'})]));
       return;
     }
-    const startPresent = els.defaultPresent.checked;
+    // Only a brand-new session starts as Present. Re-opening a saved date leaves anyone not yet marked
+    // (for example a student added later) unmarked so nobody is marked by accident.
+    const startPresent = els.defaultPresent.checked && !s;
     result.roster.forEach(st=>{
       const group = el('div', {class:'toggle-group', role:'group', 'aria-label':'Attendance for ' + st.full_name});
       STATUSES.forEach(([value, label, cls])=>{
@@ -536,11 +566,44 @@ async function loadRoster(){
       ]));
     });
     updateCounts();
+    if(staleCheckedFor !== selectedBatch.registration_id){ staleCheckedFor = selectedBatch.registration_id; checkRosterFreshness(result.roster.length); }
   } catch(err){
     if(seq !== rosterSeq) return;
     clear(els.rosterBody);
     els.rosterBody.appendChild(el('tr', null, [el('td', {colspan:'2', text:'Could not load roster: ' + errText(err)})]));
   }
+}
+// Students are sometimes added to a batch after it was first imported. Compare with registration
+// and offer a one-tap refresh (re-importing keeps all attendance already marked).
+function hideStale(){ clear(els.staleNotice); els.staleNotice.classList.remove('show'); }
+async function checkRosterFreshness(rosterCount){
+  const reg = selectedBatch && selectedBatch.registration_id;
+  if(!reg) return;
+  try{
+    const r = await callBackend('search_source', { query: String(selectedBatch.batch_number) });
+    if(!selectedBatch || selectedBatch.registration_id !== reg) return;
+    const src = (r.batches || []).find(b=>b.registration_id === reg);
+    const registered = src ? (Number(src.num_students) || 0) : 0;
+    if(registered <= rosterCount){ hideStale(); return; }
+    clear(els.staleNotice);
+    const btn = el('button', {type:'button', class:'primary', text:'Update roster'});
+    btn.addEventListener('click', async ()=>{
+      btn.disabled = true; btn.textContent = 'Updating\u2026';
+      try{
+        const res = await callBackend('import_batch', { registration_id: reg });
+        if(selectedBatch && selectedBatch.registration_id === reg) selectedBatch.num_students = res.students_imported;
+        hideStale();
+        loadRoster(); loadSummary(); loadMyBatches();
+      } catch(err){
+        btn.disabled = false; btn.textContent = 'Update roster';
+        els.statusMsg.style.color = 'var(--rust)';
+        els.statusMsg.textContent = 'Could not update the roster: ' + errText(err);
+      }
+    });
+    els.staleNotice.appendChild(el('span', {text:`Registration now lists ${registered} students for this batch, but this roster has ${rosterCount}.`}));
+    els.staleNotice.appendChild(btn);
+    els.staleNotice.classList.add('show');
+  } catch(err){ /* a failed check is not worth interrupting attendance for */ }
 }
 els.rosterBody.addEventListener('click', e=>{
   const btn = e.target.closest('.toggle-btn');
