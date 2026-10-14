@@ -9,60 +9,108 @@
 <style>
 :root{
   --bg:#F5F6F1; --surface:#FFFFFF; --ink:#1F2A24; --ink-soft:#5B6B62;
-  --line:#DCE1D8; --brass:#A9782E; --brass-dark:#8A611F; --teal:#3D6B63;
-  --rust:#B23A2A; --rust-bg:#FBEAE6;
+  --line:#DCE1D8; --brass:#A9782E; --brass-dark:#8A611F; --brass-bg:#F1EBDD; --teal:#3D6B63; --teal-bg:#E4EEEB;
+  --rust:#B23A2A; --rust-bg:#FBEAE6; --grey:#ECEEE8;
   font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 *{box-sizing:border-box;}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;padding-bottom:80px;}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.45;padding-bottom:60px;}
 .wrap{max-width:900px;margin:0 auto;padding:0 24px;}
-header.top{border-bottom:2px solid var(--ink);padding:28px 0 20px;margin-bottom:8px;}
+header.top{border-bottom:2px solid var(--ink);padding:26px 0 18px;margin-bottom:8px;}
 .brand{font-family:"Space Grotesk",system-ui,sans-serif;font-weight:700;font-size:26px;letter-spacing:-0.02em;}
 .brand small{display:block;font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-dark);margin-top:4px;}
 section.card{background:var(--surface);border:1px solid var(--line);border-radius:2px;margin:20px 0;position:relative;padding:26px 28px 28px 74px;}
 section.card::before{content:attr(data-num);position:absolute;left:0;top:0;bottom:0;width:52px;background:var(--ink);color:var(--bg);font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:20px;display:flex;align-items:flex-start;justify-content:center;padding-top:26px;}
 h2.section-title{font-family:"Space Grotesk",system-ui,sans-serif;font-size:19px;font-weight:700;margin:0 0 4px;letter-spacing:-0.01em;}
-p.section-sub{margin:0 0 18px;font-size:13px;color:var(--ink-soft);}
-.field-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px;align-items:flex-end;}
+h3.sub-title{font-family:"Space Grotesk",system-ui,sans-serif;font-size:15px;font-weight:700;margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--line);}
+p.section-sub{margin:0 0 16px;font-size:13px;color:var(--ink-soft);}
+.field-row{display:flex;flex-wrap:wrap;gap:14px 16px;margin-bottom:14px;align-items:flex-end;}
 .field{flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;}
 .field.narrow{max-width:200px;flex:0 0 auto;}
 label{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft);}
-input,select{font-family:system-ui,-apple-system,sans-serif;font-size:14.5px;padding:9px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);}
-input:focus,select:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass);}
-button{font-family:system-ui,sans-serif;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:3px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer;}
+input,select{font-family:system-ui,-apple-system,sans-serif;font-size:14.5px;padding:0 10px;height:40px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);min-width:0;}
+input:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass);}
+button{font-family:system-ui,sans-serif;font-size:13.5px;font-weight:600;padding:0 16px;min-height:40px;border-radius:3px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer;}
 button:hover{background:#F0F0EC;}
 button.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
 button.primary:hover{background:#33463B;}
 button.brass{background:var(--brass);color:#fff;border-color:var(--brass-dark);}
 button.brass:hover{background:var(--brass-dark);}
+button.link{border:none;background:none;color:var(--brass-dark);text-decoration:underline;min-height:0;padding:2px 0;font-weight:600;}
+button.link:hover{background:none;color:var(--ink);}
 button:disabled{opacity:0.5;cursor:not-allowed;}
-.hint{font-size:12px;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;}
+.hint{font-size:12.5px;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;}
+.hint.error{color:var(--rust);}
 .paid-error{font-size:12px;color:var(--rust);margin-top:2px;display:none;}
 .paid-error.show{display:block;}
 input.input-invalid{border-color:var(--rust);background:var(--rust-bg);}
-.result-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
-.result-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:3px;padding:10px 14px;background:#FAFAF6;}
-.result-row .info{font-size:13.5px;}
-.result-row .info b{font-family:"Space Grotesk",sans-serif;}
-.result-row .info .meta{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);}
-.selected-banner{background:#F1EBDD;border:1px dashed var(--brass);color:var(--brass-dark);padding:10px 14px;border-radius:3px;font-size:13.5px;margin-bottom:14px;display:none;}
-.selected-banner.show{display:block;}
-table.roster{border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",monospace;font-size:13.5px;margin-top:10px;}
-table.roster th{background:var(--ink);color:var(--bg);text-align:left;padding:8px 10px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;}
-table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
-.toggle-group{display:flex;gap:6px;}
-.toggle-btn{padding:5px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;cursor:pointer;}
+.hidden{display:none !important;}
+.conditional{display:none;}
+.conditional.show{display:block;}
+
+.result-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.result-row{display:flex;justify-content:space-between;align-items:center;gap:14px;border:1px solid var(--line);border-radius:3px;padding:11px 14px;background:#FAFAF6;}
+.result-row.last{border-color:var(--brass);background:var(--brass-bg);}
+.result-row .info{font-size:14px;min-width:0;}
+.result-row .info b{font-family:"Space Grotesk",sans-serif;font-size:15px;}
+.result-row .info .meta{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.result-row button{flex:0 0 auto;min-width:120px;}
+.chip{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;padding:1px 7px;border-radius:2px;margin-left:6px;vertical-align:1px;}
+.chip.ongoing{background:var(--teal-bg);color:var(--teal);}
+.chip.upcoming,.chip.last{background:var(--brass-bg);color:var(--brass-dark);}
+.chip.completed,.chip.unknown{background:var(--grey);color:var(--ink-soft);}
+details.import-box{margin-top:16px;border:1px dashed var(--line);border-radius:3px;padding:10px 14px;background:#FAFAF6;}
+details.import-box summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--brass-dark);}
+details.import-box[open] summary{margin-bottom:12px;}
+.selected-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--brass-bg);border:1px dashed var(--brass);color:var(--brass-dark);padding:10px 14px;border-radius:3px;font-size:14px;margin-bottom:14px;}
+.selected-banner b{font-family:"Space Grotesk",sans-serif;}
+
+.check{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:500;color:var(--ink);margin:2px 0 8px;cursor:pointer;}
+.check input{height:18px;width:18px;margin-top:1px;padding:0;flex:0 0 auto;}
+.counts{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;margin:6px 0;}
+.counts span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--line);}
+.counts .c-present::before{background:var(--teal);} .counts .c-absent::before{background:var(--rust);} .counts .c-na::before{background:var(--ink-soft);}
+.mark-all{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 4px;font-size:12.5px;color:var(--ink-soft);}
+.mark-all button{min-height:32px;font-size:12.5px;padding:0 12px;}
+table.roster{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:6px;}
+table.roster th{background:var(--ink);color:var(--bg);text-align:left;padding:8px 10px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace;font-weight:500;}
+table.roster th.att,table.roster td.att{text-align:right;width:290px;}
+table.roster td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:middle;}
+table.roster .name{font-weight:600;overflow-wrap:anywhere;}
+table.roster .meta{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft);}
+.toggle-group{display:inline-flex;gap:6px;}
+.toggle-btn{min-height:36px;padding:0 13px;border-radius:18px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;color:var(--ink-soft);}
 .toggle-btn.present.active{background:var(--teal);color:#fff;border-color:var(--teal);}
 .toggle-btn.absent.active{background:var(--rust);color:#fff;border-color:var(--rust);}
 .toggle-btn.na.active{background:var(--ink-soft);color:#fff;border-color:var(--ink-soft);}
-.toggle-btn.unmarked{color:var(--ink-soft);}
-.summary-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:7px 2px;font-size:13.5px;}
-.summary-row .pct{font-family:"IBM Plex Mono",monospace;font-weight:600;}
-.pct.low{color:var(--rust);}
-.pct.high{color:var(--teal);}
-#statusMsg{font-size:13px;font-family:"IBM Plex Mono",monospace;}
-.conditional{display:none;}
-.conditional.show{display:block;}
+.save-bar{position:sticky;bottom:0;display:flex;justify-content:flex-end;align-items:center;gap:14px;flex-wrap:wrap;background:var(--surface);border-top:2px solid var(--ink);margin:18px -28px -28px -74px;padding:12px 28px 12px 74px;}
+#statusMsg{font-size:13px;font-family:"IBM Plex Mono",monospace;margin-right:auto;}
+
+table.summary{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px;}
+table.summary th{text-align:left;padding:7px 10px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace;font-weight:500;background:var(--grey);}
+table.summary td{padding:8px 10px;border-bottom:1px solid var(--line);}
+table.summary .num{text-align:right;font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
+table.summary .sid{display:block;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft);}
+.pct{font-weight:600;} .pct.low{color:var(--rust);} .pct.high{color:var(--teal);}
+
+@media (max-width:720px){
+  .wrap{padding:0 12px;}
+  section.card{padding:20px 14px 22px 50px;}
+  section.card::before{width:36px;font-size:16px;padding-top:20px;}
+  .field.narrow{max-width:none;flex:1 1 150px;}
+  .field{min-width:150px;}
+  .result-row{flex-direction:column;align-items:stretch;}
+  .result-row button{width:100%;}
+  .selected-banner{flex-direction:column;align-items:flex-start;}
+  table.roster thead{display:none;}
+  table.roster,table.roster tbody,table.roster tr,table.roster td{display:block;width:100%;}
+  table.roster tr{border-bottom:1px solid var(--line);padding:10px 0;}
+  table.roster td{border:none;padding:2px 0;}
+  table.roster th.att,table.roster td.att{text-align:left;width:auto;}
+  table.roster .toggle-group{display:flex;margin-top:8px;}
+  .toggle-btn{flex:1;min-height:42px;}
+  .save-bar{margin:16px -14px -22px -50px;padding:12px 14px 12px 50px;}
+}
 </style>
 </head>
 <body>
@@ -72,43 +120,45 @@ table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
 <div class="wrap">
 
   <section class="card" data-num="1">
-    <h2 class="section-title">Find &amp; Import a Batch</h2>
-    <p class="section-sub">Search your registration system by batch number or course name. Importing copies that batch's roster here; it won't touch the original data.</p>
+    <h2 class="section-title">Choose your batch</h2>
+    <p class="section-sub">Tap a batch to start taking attendance. Running batches are shown first.</p>
     <div class="field-row">
       <div class="field">
-        <label for="importSearch">Batch number or course name</label>
-        <input type="text" id="importSearch" placeholder="e.g. 23 or Baking">
+        <label for="batchSearch">Search</label>
+        <input type="search" id="batchSearch" placeholder="Batch number or course name" autocomplete="off">
       </div>
-      <button type="button" id="importSearchBtn">Search</button>
-    </div>
-    <div class="result-list" id="importResults"></div>
-  </section>
-
-  <section class="card" data-num="2">
-    <h2 class="section-title">Mark Attendance</h2>
-    <p class="section-sub">Pick an already-imported batch and a date.</p>
-    <div class="field-row">
-      <div class="field">
-        <label for="batchSearch">Find imported batch</label>
-        <input type="text" id="batchSearch" placeholder="e.g. 23 or Baking">
-      </div>
-      <button type="button" id="batchSearchBtn">Search</button>
+      <button type="button" id="refreshBatchesBtn">Refresh</button>
     </div>
     <div class="result-list" id="batchResults"></div>
 
+    <details class="import-box" id="importBox">
+      <summary>Batch not in the list? Import it from registration</summary>
+      <p class="section-sub">Search the registration system by batch number or course name. Importing copies that batch's students here; it won't change the original data.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="importSearch">Batch number or course name</label>
+          <input type="text" id="importSearch" placeholder="e.g. 23 or Baking">
+        </div>
+        <button type="button" id="importSearchBtn">Search</button>
+      </div>
+      <div class="result-list" id="importResults"></div>
+    </details>
+  </section>
+
+  <section class="card conditional" data-num="2" id="attendanceSection">
+    <h2 class="section-title">Take attendance</h2>
     <div class="selected-banner" id="selectedBanner"></div>
 
-    <div class="field-row conditional" id="dateRow">
+    <div class="field-row">
       <div class="field narrow">
         <label for="attDate">Date</label>
         <input type="date" id="attDate">
       </div>
       <button type="button" id="todayBtn">Today</button>
-      <button type="button" id="loadRosterBtn">Load roster</button>
     </div>
 
     <div class="conditional" id="sessionSection">
-      <h2 class="section-title" style="font-size:15px;margin-top:8px;">Session Details</h2>
+      <h3 class="sub-title">Session details</h3>
       <div class="field-row">
         <div class="field">
           <label for="sessLab">Select Lab</label>
@@ -129,7 +179,7 @@ table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
           <input type="text" id="sessPractical">
         </div>
         <div class="field narrow">
-          <label for="sessDuration">Session Duration (minutes)</label>
+          <label for="sessDuration">Duration (minutes)</label>
           <input type="number" id="sessDuration" min="30" step="1">
           <div class="paid-error" id="sessDurationErr">Must be at least 30 minutes.</div>
         </div>
@@ -137,24 +187,28 @@ table.roster td{border-bottom:1px solid var(--line);padding:8px 10px;}
     </div>
 
     <div class="conditional" id="rosterSection">
-      <div class="field-row">
-        <button type="button" id="markAllPresentBtn">Mark all present</button>
-        <button type="button" id="markAllAbsentBtn">Mark all absent</button>
-        <button type="button" id="markAllNaBtn">Mark all N/A</button>
+      <h3 class="sub-title">Students</h3>
+      <label class="check"><input type="checkbox" id="defaultPresent" checked><span>Start everyone as Present. Then just tap <b>Absent</b> for anyone who was not there.</span></label>
+      <div class="mark-all">
+        <span>Set all:</span>
+        <button type="button" id="markAllPresentBtn">Present</button>
+        <button type="button" id="markAllAbsentBtn">Absent</button>
+        <button type="button" id="markAllNaBtn">N/A</button>
       </div>
+      <div class="counts" id="rosterCounts" aria-live="polite"></div>
       <table class="roster">
-        <thead><tr><th>Name</th><th>Mobile</th><th>Status</th></tr></thead>
+        <thead><tr><th>Student</th><th class="att">Attendance</th></tr></thead>
         <tbody id="rosterBody"></tbody>
       </table>
-      <div class="field-row" style="margin-top:16px;">
-        <span id="statusMsg"></span>
+      <div class="save-bar">
+        <span id="statusMsg" aria-live="polite"></span>
         <button type="button" class="primary" id="saveAttendanceBtn">Save attendance</button>
       </div>
     </div>
   </section>
 
   <section class="card conditional" data-num="3" id="summarySection">
-    <h2 class="section-title">Attendance Summary</h2>
+    <h2 class="section-title">Attendance so far</h2>
     <p class="section-sub" id="summarySub"></p>
     <div id="summaryBody"></div>
   </section>
@@ -170,58 +224,82 @@ const CONFIG = {
 const LABS = ["Engineering","Electrical","Food_Processing","Mechatronics","Agriculture"];
 const STAFF = [{"name": "Ganesh Salunkhe", "label": "Ganesh Salunkhe", "lab_filter": "Engineering", "designation": "Officer"}, {"name": "Swati Wani", "label": "Swati Wani", "lab_filter": "Engineering", "designation": "Master Trainer"}, {"name": "Rajesh S. Chavhan", "label": "Rajesh S. Chavhan", "lab_filter": "Electrical", "designation": "Sr. Training Officer"}, {"name": "Manjokti Dongare", "label": "Manjokti Dongare", "lab_filter": "Electrical", "designation": "Instructor"}, {"name": "Akshay Kharpude", "label": "Akshay Kharpude", "lab_filter": "Electrical", "designation": "Trainee Instructor"}, {"name": "Varun Devkule", "label": "Varun Devkule", "lab_filter": "Electrical", "designation": "Intern"}, {"name": "Kunal Garge", "label": "Kunal Garge", "lab_filter": "Food_Processing", "designation": "Senior Officer"}, {"name": "Sagar Deshpande", "label": "Sagar Deshpande", "lab_filter": "Food_Processing", "designation": "Officer"}, {"name": "Suvarna Nagare", "label": "Suvarna Nagare", "lab_filter": "Food_Processing", "designation": "Master Trainer"}, {"name": "Rutuja Rangade", "label": "Rutuja Rangade", "lab_filter": "Food_Processing", "designation": "Assistant Instructor"}, {"name": "Arundhati Jadhav", "label": "Arundhati Jadhav", "lab_filter": "Mechatronics", "designation": "Dy Manager"}, {"name": "Uday Kulkarni", "label": "Uday Kulkarni", "lab_filter": "Mechatronics", "designation": "Master Trainer"}, {"name": "Bhagyshri Kumbhar", "label": "Bhagyshri Kumbhar", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Siddhi Kadam", "label": "Siddhi Kadam", "lab_filter": "Agriculture", "designation": "Sr. Trainer"}, {"name": "Rudali Masaye", "label": "Rudali Masaye", "lab_filter": "Agriculture", "designation": "Sr. Instructor"}, {"name": "Paresh Botle", "label": "Paresh Botle", "lab_filter": "Agriculture", "designation": "Lab In-Charge"}, {"name": "Siddhi Lingayat", "label": "Siddhi Lingayat", "lab_filter": "Healthcare", "designation": "Trainer"}, {"name": "Shiv Gaygol", "label": "Shiv Gaygol", "lab_filter": "Engineering", "designation": "Lab In-Charge"}, {"name": "Sagar Vaishnav", "label": "Sagar Vaishnav", "lab_filter": "Mechatronics", "designation": "Trainer"}, {"name": "Ramdas Lomate", "label": "Ramdas Lomate", "lab_filter": "Mechatronics", "designation": "Trainer"}];
 
+const $ = id => document.getElementById(id);
 const els = {
-  importSearch: document.getElementById('importSearch'),
-  importSearchBtn: document.getElementById('importSearchBtn'),
-  importResults: document.getElementById('importResults'),
-  batchSearch: document.getElementById('batchSearch'),
-  batchSearchBtn: document.getElementById('batchSearchBtn'),
-  batchResults: document.getElementById('batchResults'),
-  selectedBanner: document.getElementById('selectedBanner'),
-  dateRow: document.getElementById('dateRow'),
-  attDate: document.getElementById('attDate'),
-  loadRosterBtn: document.getElementById('loadRosterBtn'),
-  todayBtn: document.getElementById('todayBtn'),
-  sessionSection: document.getElementById('sessionSection'),
-  sessLab: document.getElementById('sessLab'),
-  sessTrainer: document.getElementById('sessTrainer'),
-  sessTopic: document.getElementById('sessTopic'),
-  sessPractical: document.getElementById('sessPractical'),
-  sessDuration: document.getElementById('sessDuration'),
-  sessDurationErr: document.getElementById('sessDurationErr'),
-  rosterSection: document.getElementById('rosterSection'),
-  rosterBody: document.getElementById('rosterBody'),
-  markAllPresentBtn: document.getElementById('markAllPresentBtn'),
-  markAllAbsentBtn: document.getElementById('markAllAbsentBtn'),
-  markAllNaBtn: document.getElementById('markAllNaBtn'),
-  statusMsg: document.getElementById('statusMsg'),
-  saveAttendanceBtn: document.getElementById('saveAttendanceBtn'),
-  summarySection: document.getElementById('summarySection'),
-  summarySub: document.getElementById('summarySub'),
-  summaryBody: document.getElementById('summaryBody')
+  importBox:$('importBox'), importSearch:$('importSearch'), importSearchBtn:$('importSearchBtn'), importResults:$('importResults'),
+  batchSearch:$('batchSearch'), refreshBatchesBtn:$('refreshBatchesBtn'), batchResults:$('batchResults'),
+  attendanceSection:$('attendanceSection'), selectedBanner:$('selectedBanner'), attDate:$('attDate'), todayBtn:$('todayBtn'),
+  sessionSection:$('sessionSection'), sessLab:$('sessLab'), sessTrainer:$('sessTrainer'), sessTopic:$('sessTopic'),
+  sessPractical:$('sessPractical'), sessDuration:$('sessDuration'), sessDurationErr:$('sessDurationErr'),
+  rosterSection:$('rosterSection'), rosterBody:$('rosterBody'), rosterCounts:$('rosterCounts'), defaultPresent:$('defaultPresent'),
+  markAllPresentBtn:$('markAllPresentBtn'), markAllAbsentBtn:$('markAllAbsentBtn'), markAllNaBtn:$('markAllNaBtn'),
+  statusMsg:$('statusMsg'), saveAttendanceBtn:$('saveAttendanceBtn'),
+  summarySection:$('summarySection'), summarySub:$('summarySub'), summaryBody:$('summaryBody')
 };
 
-LABS.forEach(l=>{
-  const opt = document.createElement('option');
-  opt.value = l; opt.textContent = l.replace('_',' ');
-  els.sessLab.appendChild(opt);
-});
+// ---------- safe DOM helpers (never put server or student text into innerHTML) ----------
+function el(tag, props, children){
+  const n = document.createElement(tag);
+  if(props){ Object.keys(props).forEach(k=>{
+    if(k === 'class') n.className = props[k];
+    else if(k === 'text') n.textContent = props[k];
+    else if(k === 'dataset') Object.assign(n.dataset, props[k]);
+    else n.setAttribute(k, props[k]);
+  }); }
+  (children || []).forEach(c=>{ if(c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return n;
+}
+function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+function showHint(container, text, isError){
+  clear(container);
+  container.appendChild(el('div', {class:'hint' + (isError ? ' error' : ''), text}));
+}
+function errText(err){ return err && err.message ? err.message : String(err); }
+
+// ---------- small memory so staff don't retype the same things (this device only) ----------
+const MEM = {
+  get(key){ try{ return JSON.parse(localStorage.getItem('karigar_att_' + key)); } catch(e){ return null; } },
+  set(key, val){ try{ localStorage.setItem('karigar_att_' + key, JSON.stringify(val)); } catch(e){} }
+};
+
+// ---------- dates (always India time, whatever the device's setting) ----------
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const IST_MS = 330 * 60000;
+function istDate(v){
+  if(!v) return '';
+  const d = new Date(v);
+  return isNaN(d) ? '' : new Date(d.getTime() + IST_MS).toISOString().slice(0,10);
+}
+function todayLocalISO(){ return new Date(Date.now() + IST_MS).toISOString().slice(0,10); }
+function fmtDate(v){
+  const s = istDate(v);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  return m ? `${+m[3]} ${MONTHS[+m[2]-1]} ${m[1]}` : (v ? String(v) : '');
+}
+function batchStatus(b){
+  const s = istDate(b.enroll_date), e = istDate(b.course_end_date), t = todayLocalISO();
+  if(!s || !e) return 'unknown';
+  if(t < s) return 'upcoming';
+  if(t > e) return 'completed';
+  return 'ongoing';
+}
+const STATUS_TEXT = {ongoing:'Running', upcoming:'Upcoming', completed:'Finished', unknown:''};
+const STATUS_ORDER = {ongoing:0, upcoming:1, unknown:2, completed:3};
+
+// ---------- session form ----------
+LABS.forEach(l=>{ els.sessLab.appendChild(el('option', {value:l, text:l.replace('_',' ')})); });
 els.sessLab.addEventListener('change', ()=>{
   const lab = els.sessLab.value;
-  els.sessTrainer.innerHTML = '';
+  clear(els.sessTrainer);
   if(!lab){
     els.sessTrainer.disabled = true;
-    els.sessTrainer.innerHTML = '<option value="">Select lab first</option>';
+    els.sessTrainer.appendChild(el('option', {value:'', text:'Select lab first'}));
     return;
   }
   els.sessTrainer.disabled = false;
-  const ph = document.createElement('option');
-  ph.value = ''; ph.textContent = 'Select…';
-  els.sessTrainer.appendChild(ph);
-  STAFF.filter(s=>s.lab_filter===lab).forEach(s=>{
-    const opt = document.createElement('option');
-    opt.value = s.name; opt.textContent = `${s.label} (${s.designation})`;
-    els.sessTrainer.appendChild(opt);
+  els.sessTrainer.appendChild(el('option', {value:'', text:'Select…'}));
+  STAFF.filter(s=>s.lab_filter === lab).forEach(s=>{
+    els.sessTrainer.appendChild(el('option', {value:s.name, text:`${s.label} (${s.designation})`}));
   });
 });
 els.sessDuration.addEventListener('input', ()=>{
@@ -230,127 +308,205 @@ els.sessDuration.addEventListener('input', ()=>{
   els.sessDuration.classList.toggle('input-invalid', bad);
 });
 
-let selectedBatch = null; // {registration_id, course_label, batch_number}
+let selectedBatch = null; // {registration_id, course_label, batch_number, num_students}
 
+// ---------- backend ----------
 async function fetchWithTimeout(url, options, timeoutMs=20000){
   const controller = new AbortController();
   const timer = setTimeout(()=>controller.abort(), timeoutMs);
   try{ return await fetch(url, {...options, signal: controller.signal}); }
   finally{ clearTimeout(timer); }
 }
-
 async function callBackend(action, extra){
-  if(CONFIG.APPS_SCRIPT_URL.includes('PASTE_YOUR')) {
-    throw new Error('Apps Script URL not configured yet (edit CONFIG in this file)');
+  if(CONFIG.APPS_SCRIPT_URL.includes('PASTE_YOUR')) throw new Error('Apps Script URL not configured yet (edit CONFIG in this file)');
+  let result;
+  try{
+    const resp = await fetchWithTimeout(CONFIG.APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ token: CONFIG.SECRET_TOKEN, action, ...extra })
+    });
+    result = await resp.json();
+  } catch(err){
+    if(err && err.name === 'AbortError') throw new Error('The request timed out. Check your connection and try again.');
+    throw err;
   }
-  const resp = await fetchWithTimeout(CONFIG.APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({ token: CONFIG.SECRET_TOKEN, action, ...extra })
-  });
-  const result = await resp.json();
   if(result.status !== 'success') throw new Error(result.message || 'Unknown error from server');
   return result;
 }
 
-function fmtDate(v){
-  if(!v) return '';
-  const d = new Date(v);
-  return isNaN(d) ? String(v) : d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-}
+// ---------- 1: choose a batch ----------
+let myBatches = [];
+let showAllBatches = false;
+const VISIBLE_AT_FIRST = 6;
 
-function renderResultRow(container, batch, actionLabel, onClick, statusNote){
-  const row = document.createElement('div');
-  row.className = 'result-row';
-  row.innerHTML = `<div class="info"><b>${batch.course_label || 'Unknown course'}</b> &middot; Batch ${batch.batch_number}
-    <div class="meta">${batch.num_students || 0} students &middot; ${fmtDate(batch.enroll_date)} to ${fmtDate(batch.course_end_date)}${statusNote ? ' &middot; ' + statusNote : ''}</div></div>`;
-  const btn = document.createElement('button');
-  btn.textContent = actionLabel;
-  btn.className = 'brass';
+function batchCard(batch, actionLabel, onClick, opts){
+  opts = opts || {};
+  const status = batchStatus(batch);
+  const dates = [fmtDate(batch.enroll_date), fmtDate(batch.course_end_date)].filter(Boolean).join(' to ');
+  const meta = [`${batch.num_students || 0} students`, dates, opts.note].filter(Boolean).join(' \u00B7 ');
+  const btn = el('button', {type:'button', class: opts.secondary ? '' : 'brass', text:actionLabel});
   btn.addEventListener('click', ()=>onClick(batch));
-  row.appendChild(btn);
-  container.appendChild(row);
+  return el('div', {class:'result-row' + (opts.last ? ' last' : '')}, [
+    el('div', {class:'info'}, [
+      el('b', {text: batch.course_label || 'Unknown course'}), ` \u00B7 Batch ${batch.batch_number}`,
+      STATUS_TEXT[status] ? el('span', {class:'chip ' + status, text:STATUS_TEXT[status]}) : null,
+      opts.last ? el('span', {class:'chip last', text:'Last used'}) : null,
+      el('div', {class:'meta', text: meta})
+    ]),
+    btn
+  ]);
 }
+function sortedBatches(list){
+  const last = MEM.get('last_batch');
+  return list.slice().sort((a,b)=>{
+    const la = last && a.registration_id === last ? 0 : 1, lb = last && b.registration_id === last ? 0 : 1;
+    if(la !== lb) return la - lb;
+    const sa = STATUS_ORDER[batchStatus(a)], sb = STATUS_ORDER[batchStatus(b)];
+    if(sa !== sb) return sa - sb;
+    return (parseInt(b.batch_number,10) || 0) - (parseInt(a.batch_number,10) || 0);
+  });
+}
+function renderBatches(){
+  const q = els.batchSearch.value.trim().toLowerCase();
+  const last = MEM.get('last_batch');
+  let list = sortedBatches(myBatches);
+  if(q) list = list.filter(b=>`${b.batch_number} ${b.course_label || ''}`.toLowerCase().includes(q));
+  clear(els.batchResults);
+  if(!myBatches.length){
+    showHint(els.batchResults, 'No batches here yet. Open "Batch not in the list?" below and import one from registration.');
+    els.importBox.open = true;
+    return;
+  }
+  if(!list.length){ showHint(els.batchResults, 'No batch matches that search. Try the import option below if it is a new batch.'); return; }
+  const shown = (q || showAllBatches) ? list : list.slice(0, VISIBLE_AT_FIRST);
+  shown.forEach(b=>els.batchResults.appendChild(batchCard(b, 'Take attendance', selectBatch, {last: !!last && b.registration_id === last})));
+  if(shown.length < list.length){
+    const more = el('button', {type:'button', class:'link', text:`Show all ${list.length} batches`});
+    more.addEventListener('click', ()=>{ showAllBatches = true; renderBatches(); });
+    els.batchResults.appendChild(more);
+  }
+}
+let batchesSeq = 0;
+async function loadMyBatches(){
+  const seq = ++batchesSeq;
+  showHint(els.batchResults, 'Loading your batches\u2026');
+  try{
+    const result = await callBackend('list_batches', { query: '' });
+    if(seq !== batchesSeq) return;
+    myBatches = result.batches || [];
+    renderBatches();
+  } catch(err){
+    if(seq !== batchesSeq) return;
+    myBatches = [];
+    showHint(els.batchResults, 'Could not load your batches: ' + errText(err), true);
+  }
+}
+els.batchSearch.addEventListener('input', renderBatches);
+els.refreshBatchesBtn.addEventListener('click', loadMyBatches);
 
-// ---- Section 1: import ----
+// ---------- import (only needed for a batch that is not listed yet) ----------
 let importSearchSeq = 0;
 els.importSearchBtn.addEventListener('click', async ()=>{
   const seq = ++importSearchSeq;
-  els.importResults.innerHTML = '<div class="hint">Searching…</div>';
+  showHint(els.importResults, 'Searching\u2026');
   try{
     const result = await callBackend('search_source', { query: els.importSearch.value });
-    if(seq !== importSearchSeq) return; // a newer search started before this one finished; ignore this stale response
-    els.importResults.innerHTML = '';
-    if(!result.batches.length){ els.importResults.innerHTML = '<div class="hint">No matching batches found in the registration system.</div>'; return; }
-    result.batches.forEach(b=>{
+    if(seq !== importSearchSeq) return; // a newer search started; ignore this stale response
+    clear(els.importResults);
+    if(!result.batches.length){ showHint(els.importResults, 'No matching batches found in the registration system.'); return; }
+    result.batches.slice().sort((a,b)=>(parseInt(b.batch_number,10) || 0) - (parseInt(a.batch_number,10) || 0)).forEach(b=>{
       const note = b.already_imported ? `Already imported ${fmtDate(b.imported_at)}` : '';
-      renderResultRow(els.importResults, b, b.already_imported ? 'Re-import' : 'Import', importBatch, note);
+      els.importResults.appendChild(batchCard(b, b.already_imported ? 'Re-import' : 'Import', importBatch, {note, secondary: !!b.already_imported}));
     });
   } catch(err){
     if(seq !== importSearchSeq) return;
-    els.importResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
+    showHint(els.importResults, 'Search failed: ' + errText(err), true);
   }
 });
-
 async function importBatch(batch){
-  importSearchSeq++; // any in-flight search response is now stale too, importing changes what "already imported" means
-  els.importResults.innerHTML = '<div class="hint">Importing…</div>';
+  importSearchSeq++; // importing changes what "already imported" means, so any in-flight search is stale
+  showHint(els.importResults, 'Importing\u2026');
   try{
     const result = await callBackend('import_batch', { registration_id: batch.registration_id });
-    els.importResults.innerHTML = `<div class="hint">Imported "${result.course_label}", Batch ${result.batch_number}: ${result.students_imported} students. You can now find it below under "Mark Attendance".</div>`;
+    showHint(els.importResults, `Imported "${result.course_label}", Batch ${result.batch_number}: ${result.students_imported} students.`);
+    loadMyBatches();
+    selectBatch({ registration_id: batch.registration_id, course_label: result.course_label, batch_number: result.batch_number,
+      num_students: result.students_imported, enroll_date: batch.enroll_date, course_end_date: batch.course_end_date });
   } catch(err){
-    els.importResults.innerHTML = `<div class="hint">Import failed: ${err.message}</div>`;
+    showHint(els.importResults, 'Import failed: ' + errText(err), true);
   }
 }
 
-// ---- Section 2: select imported batch + date ----
-let batchSearchSeq = 0;
-els.batchSearchBtn.addEventListener('click', async ()=>{
-  const seq = ++batchSearchSeq;
-  els.batchResults.innerHTML = '<div class="hint">Searching…</div>';
-  try{
-    const result = await callBackend('list_batches', { query: els.batchSearch.value });
-    if(seq !== batchSearchSeq) return;
-    els.batchResults.innerHTML = '';
-    if(!result.batches.length){ els.batchResults.innerHTML = '<div class="hint">No imported batches match that search. Import one above first.</div>'; return; }
-    result.batches.forEach(b=>renderResultRow(els.batchResults, b, 'Select', selectBatch));
-  } catch(err){
-    if(seq !== batchSearchSeq) return;
-    els.batchResults.innerHTML = `<div class="hint">Search failed: ${err.message}</div>`;
-  }
-});
-
-function todayLocalISO(){
-  const IST_OFFSET_MS = 330 * 60000; // UTC+5:30, fixed regardless of the device's own timezone setting
-  const ist = new Date(Date.now() + IST_OFFSET_MS);
-  return ist.toISOString().slice(0,10);
-}
-
+// ---------- 2: take attendance ----------
 function selectBatch(batch){
   selectedBatch = batch;
-  els.selectedBanner.textContent = `Selected: ${batch.course_label}, Batch ${batch.batch_number} (${batch.num_students || 0} students)`;
-  els.selectedBanner.classList.add('show');
-  els.dateRow.classList.add('show');
-  els.sessionSection.classList.remove('show');
-  els.rosterSection.classList.remove('show');
-  els.summarySection.classList.remove('show');
-  if(!els.attDate.value){
-    els.attDate.value = todayLocalISO();
-  }
+  MEM.set('last_batch', batch.registration_id);
+  clear(els.selectedBanner);
+  const change = el('button', {type:'button', class:'link', text:'Change batch'});
+  change.addEventListener('click', ()=>{
+    els.attendanceSection.classList.remove('show');
+    els.summarySection.classList.remove('show');
+    selectedBatch = null; rosterSeq++;
+    renderBatches();
+    els.batchSearch.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+  els.selectedBanner.appendChild(el('span', null, [el('b', {text:batch.course_label || 'Batch'}), ` \u00B7 Batch ${batch.batch_number} \u00B7 ${batch.num_students || 0} students`]));
+  els.selectedBanner.appendChild(change);
+  els.attendanceSection.classList.add('show');
+  els.statusMsg.textContent = '';
+  if(!els.attDate.value) els.attDate.value = todayLocalISO();
+  loadRoster();
   loadSummary();
+  els.attendanceSection.scrollIntoView({behavior:'smooth', block:'start'});
 }
+els.todayBtn.addEventListener('click', ()=>{ els.attDate.value = todayLocalISO(); loadRoster(); });
+els.attDate.addEventListener('change', loadRoster);
 
-els.todayBtn.addEventListener('click', ()=>{ els.attDate.value = todayLocalISO(); });
-els.loadRosterBtn.addEventListener('click', loadRoster);
-
+const STATUSES = [['present','Present','present'], ['absent','Absent','absent'], ['not_applicable','N/A','na']];
+function updateCounts(){
+  const rows = [...els.rosterBody.querySelectorAll('tr[data-student-id]')];
+  const n = {present:0, absent:0, not_applicable:0, none:0};
+  rows.forEach(tr=>{
+    const a = tr.querySelector('.toggle-btn.active');
+    n[a ? a.dataset.status : 'none']++;
+  });
+  clear(els.rosterCounts);
+  if(!rows.length) return;
+  [['c-present', `Present ${n.present}`], ['c-absent', `Absent ${n.absent}`], ['c-na', `N/A ${n.not_applicable}`], ['c-none', `Unmarked ${n.none}`]]
+    .forEach(([cls, text])=>els.rosterCounts.appendChild(el('span', {class:cls, text})));
+}
+function setActive(group, status){
+  [...group.children].forEach(b=>{
+    const on = b.dataset.status === status;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function applySessionDefaults(){
+  const d = MEM.get('session_defaults');
+  if(!d) return;
+  if(d.lab){
+    els.sessLab.value = d.lab;
+    els.sessLab.dispatchEvent(new Event('change'));
+    if(d.trainer_name && [...els.sessTrainer.options].some(o=>o.value === d.trainer_name)) els.sessTrainer.value = d.trainer_name;
+  }
+  if(d.session_duration) els.sessDuration.value = d.session_duration;
+}
+function rememberSession(){
+  MEM.set('session_defaults', { lab: els.sessLab.value, trainer_name: els.sessTrainer.value, session_duration: els.sessDuration.value });
+}
+let rosterSeq = 0;
 async function loadRoster(){
   if(!selectedBatch || !els.attDate.value) return;
-  els.rosterBody.innerHTML = '<tr><td colspan="3">Loading…</td></tr>';
+  const seq = ++rosterSeq;
+  clear(els.rosterBody); clear(els.rosterCounts);
+  els.rosterBody.appendChild(el('tr', null, [el('td', {colspan:'2', text:'Loading\u2026'})]));
   els.sessionSection.classList.add('show');
   els.rosterSection.classList.add('show');
   try{
     const result = await callBackend('get_roster', { registration_id: selectedBatch.registration_id, date: els.attDate.value });
-
+    if(seq !== rosterSeq) return; // date or batch changed while loading
     const s = result.session;
     els.sessLab.value = s ? s.lab : '';
     els.sessLab.dispatchEvent(new Event('change'));
@@ -358,51 +514,60 @@ async function loadRoster(){
     els.sessTopic.value = s ? s.session_name : '';
     els.sessPractical.value = s ? s.practical_name : '';
     els.sessDuration.value = s ? s.session_duration : '';
+    if(!s) applySessionDefaults(); // a brand-new session starts with the usual lab, trainer and duration
 
-    els.rosterBody.innerHTML = '';
+    clear(els.rosterBody);
     if(!result.roster.length){
-      els.rosterBody.innerHTML = '<tr><td colspan="3">No students found for this batch (re-import it above if the roster changed).</td></tr>';
+      els.rosterBody.appendChild(el('tr', null, [el('td', {colspan:'2', text:'No students found for this batch (re-import it if the roster changed).'})]));
       return;
     }
-    result.roster.forEach(s=>{
-      const tr = document.createElement('tr');
-      tr.dataset.studentId = s.student_id;
-      tr.dataset.fullName = s.full_name;
-      tr.innerHTML = `<td>${s.full_name}</td><td>${s.mobile_number||''}</td><td>
-        <div class="toggle-group">
-          <button type="button" class="toggle-btn present ${s.status==='present'?'active':''}" data-status="present">Present</button>
-          <button type="button" class="toggle-btn absent ${s.status==='absent'?'active':''}" data-status="absent">Absent</button>
-          <button type="button" class="toggle-btn na ${s.status==='not_applicable'?'active':''}" data-status="not_applicable">N/A</button>
-        </div></td>`;
-      els.rosterBody.appendChild(tr);
+    const startPresent = els.defaultPresent.checked;
+    result.roster.forEach(st=>{
+      const group = el('div', {class:'toggle-group', role:'group', 'aria-label':'Attendance for ' + st.full_name});
+      STATUSES.forEach(([value, label, cls])=>{
+        group.appendChild(el('button', {type:'button', class:`toggle-btn ${cls}`, dataset:{status:value}, text:label}));
+      });
+      setActive(group, st.status || (startPresent ? 'present' : ''));
+      // Students whose school did not share a number have no mobile; the student ID tells them apart.
+      const sub = [st.student_id, st.mobile_number || 'no mobile'].filter(Boolean).join(' \u00B7 ');
+      els.rosterBody.appendChild(el('tr', {dataset:{studentId:st.student_id, fullName:st.full_name}}, [
+        el('td', null, [el('div', {class:'name', text:st.full_name}), el('div', {class:'meta', text:sub})]),
+        el('td', {class:'att'}, [group])
+      ]));
     });
+    updateCounts();
   } catch(err){
-    els.rosterBody.innerHTML = `<tr><td colspan="3">Could not load roster: ${err.message}</td></tr>`;
+    if(seq !== rosterSeq) return;
+    clear(els.rosterBody);
+    els.rosterBody.appendChild(el('tr', null, [el('td', {colspan:'2', text:'Could not load roster: ' + errText(err)})]));
   }
 }
-
-els.rosterBody.addEventListener('click', (e)=>{
+els.rosterBody.addEventListener('click', e=>{
   const btn = e.target.closest('.toggle-btn');
   if(!btn) return;
-  const group = btn.parentElement;
-  [...group.children].forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  setActive(btn.parentElement, btn.dataset.status);
+  updateCounts();
 });
-
+function setAll(status){
+  els.rosterBody.querySelectorAll('.toggle-group').forEach(g=>setActive(g, status));
+  updateCounts();
+}
 els.markAllPresentBtn.addEventListener('click', ()=>setAll('present'));
 els.markAllAbsentBtn.addEventListener('click', ()=>setAll('absent'));
 els.markAllNaBtn.addEventListener('click', ()=>setAll('not_applicable'));
-function setAll(status){
-  [...els.rosterBody.children].forEach(tr=>{
-    const group = tr.querySelector('.toggle-group');
-    if(!group) return;
-    [...group.children].forEach(b=>b.classList.toggle('active', b.dataset.status===status));
+// "Start everyone as Present": remembered, and applied to students not marked yet
+els.defaultPresent.checked = MEM.get('default_present') !== false;
+els.defaultPresent.addEventListener('change', ()=>{
+  MEM.set('default_present', els.defaultPresent.checked);
+  if(!els.defaultPresent.checked) return;
+  els.rosterBody.querySelectorAll('tr[data-student-id]').forEach(tr=>{
+    if(!tr.querySelector('.toggle-btn.active')) setActive(tr.querySelector('.toggle-group'), 'present');
   });
-}
+  updateCounts();
+});
 
 els.saveAttendanceBtn.addEventListener('click', async ()=>{
   if(!selectedBatch || !els.attDate.value) return;
-
   const problems = [];
   if(!els.sessLab.value) problems.push('select lab');
   if(!els.sessTrainer.value) problems.push('trainer name');
@@ -410,7 +575,7 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
   if(!els.sessPractical.value.trim()) problems.push('practical name');
   if(!els.sessDuration.value || parseInt(els.sessDuration.value) < 30) problems.push('session duration (30 minutes minimum)');
 
-  const records = [...els.rosterBody.children].map(tr=>{
+  const records = [...els.rosterBody.querySelectorAll('tr[data-student-id]')].map(tr=>{
     const active = tr.querySelector('.toggle-btn.active');
     return { student_id: tr.dataset.studentId, full_name: tr.dataset.fullName, status: active ? active.dataset.status : '' };
   }).filter(r=>r.status);
@@ -421,10 +586,9 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
     els.statusMsg.textContent = 'Before saving: ' + problems.join(', ');
     return;
   }
-
   els.saveAttendanceBtn.disabled = true;
   els.statusMsg.style.color = 'var(--ink-soft)';
-  els.statusMsg.textContent = 'Saving…';
+  els.statusMsg.textContent = 'Saving\u2026';
   try{
     const savedDateLabel = fmtDate(els.attDate.value);
     const result = await callBackend('save_attendance', {
@@ -439,22 +603,21 @@ els.saveAttendanceBtn.addEventListener('click', async ()=>{
         session_duration: els.sessDuration.value
       }
     });
+    rememberSession();
     loadSummary();
     resetSessionForm();
     els.statusMsg.style.color = 'var(--teal)';
-    els.statusMsg.textContent = `Saved attendance for ${result.saved} student(s) on ${savedDateLabel}. Ready for the next session.`;
+    els.statusMsg.textContent = `Saved attendance for ${result.saved} student(s) on ${savedDateLabel}. Pick a date for the next session.`;
   } catch(err){
     els.statusMsg.style.color = 'var(--rust)';
-    els.statusMsg.textContent = 'Could not save: ' + err.message;
+    els.statusMsg.textContent = 'Could not save: ' + errText(err);
   } finally {
     els.saveAttendanceBtn.disabled = false;
   }
 });
-
-// Clears date, session details, and the roster back to a blank state after
-// a successful save. Keeps the batch selected, most attendance is taken
-// batch by batch, date by date, so re-searching every time would be tedious.
+// Back to a blank state after a successful save, keeping the batch selected.
 function resetSessionForm(){
+  rosterSeq++;
   els.attDate.value = '';
   els.sessLab.value = '';
   els.sessLab.dispatchEvent(new Event('change'));
@@ -465,34 +628,42 @@ function resetSessionForm(){
   els.sessDuration.classList.remove('input-invalid');
   els.sessionSection.classList.remove('show');
   els.rosterSection.classList.remove('show');
-  els.rosterBody.innerHTML = '';
+  clear(els.rosterBody); clear(els.rosterCounts);
 }
 
-// ---- Section 3: summary ----
+// ---------- 3: summary ----------
+let summarySeq = 0;
 async function loadSummary(){
   if(!selectedBatch) return;
+  const seq = ++summarySeq;
   els.summarySection.classList.add('show');
   els.summarySub.textContent = `${selectedBatch.course_label}, Batch ${selectedBatch.batch_number}`;
-  els.summaryBody.innerHTML = '<div class="hint">Loading…</div>';
+  showHint(els.summaryBody, 'Loading\u2026');
   try{
     const result = await callBackend('get_attendance_summary', { registration_id: selectedBatch.registration_id });
-    if(!result.summary.dates.length){
-      els.summaryBody.innerHTML = '<div class="hint">No attendance marked yet for this batch.</div>';
-      return;
-    }
-    const totalSessions = result.summary.dates.length;
-    els.summaryBody.innerHTML = `<div class="hint">${totalSessions} session(s) recorded so far.</div>`;
+    if(seq !== summarySeq) return;
+    if(!result.summary.dates.length){ showHint(els.summaryBody, 'No attendance marked yet for this batch.'); return; }
+    clear(els.summaryBody);
+    els.summaryBody.appendChild(el('div', {class:'hint', text:`${result.summary.dates.length} session(s) recorded so far.`}));
+    const head = el('tr', null, [el('th', {text:'Student'}), el('th', {class:'num', text:'Present'}), el('th', {class:'num', text:'Attendance'})]);
+    const body = el('tbody');
     result.summary.students.forEach(s=>{
       const pct = s.total_sessions ? Math.round((s.present_count / s.total_sessions) * 100) : 0;
-      const row = document.createElement('div');
-      row.className = 'summary-row';
-      row.innerHTML = `<span>${s.full_name}</span><span class="pct ${pct<75?'low':'high'}">${s.present_count}/${s.total_sessions} (${pct}%)</span>`;
-      els.summaryBody.appendChild(row);
+      body.appendChild(el('tr', null, [
+        el('td', null, [s.full_name, s.student_id ? el('span', {class:'sid', text:s.student_id}) : null]),
+        el('td', {class:'num', text:`${s.present_count}/${s.total_sessions}`}),
+        el('td', {class:'num'}, [el('span', {class:'pct ' + (pct < 75 ? 'low' : 'high'), text:`${pct}%`})])
+      ]));
     });
+    els.summaryBody.appendChild(el('table', {class:'summary'}, [el('thead', null, [head]), body]));
   } catch(err){
-    els.summaryBody.innerHTML = `<div class="hint">Could not load summary: ${err.message}</div>`;
+    if(seq !== summarySeq) return;
+    showHint(els.summaryBody, 'Could not load summary: ' + errText(err), true);
   }
 }
+
+// ---------- start: show the user's batches straight away ----------
+loadMyBatches();
 </script>
 </body>
 </html>
